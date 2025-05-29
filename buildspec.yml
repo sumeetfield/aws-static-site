@@ -6,7 +6,8 @@ phases:
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 055438989116.dkr.ecr.us-east-1.amazonaws.com
       - REPOSITORY_URI=055438989116.dkr.ecr.us-east-1.amazonaws.com/static-site-repo
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=temp
+      
   build:
     commands:
       - echo Building Docker image...
