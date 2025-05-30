@@ -3,19 +3,21 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Logging into Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 055438989116.dkr.ecr.us-east-1.amazonaws.com
-      - REPOSITORY_URI=055438989116.dkr.ecr.us-east-1.amazonaws.com/static-site-repo
-      - IMAGE_TAG=temp
-      
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 744154933887.dkr.ecr.us-east-1.amazonaws.com)
+      - REPO_URI=744154933887.dkr.ecr.us-east-1.amazonaws.com/html-website-repo
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker build -t $REPO_URI:$IMAGE_TAG .
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - printf '[{"name":"static-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo Pushing image to ECR...
+      - docker push $REPO_URI:$IMAGE_TAG
+      - echo Writing imagedefinitions.json...
+      - printf '[{"name":"html-container","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
+
 artifacts:
-  files: imagedefinitions.json
+  files:
+    - imagedefinitions.json
